@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.0 <=0.9.0;
+pragma solidity ^0.8.30;
 
 // 委托投票
 contract Ballot {
@@ -23,7 +23,7 @@ contract Ballot {
     // 动态数组
     Proposal[] public proposals;
 
-    constructor(bytes32[] proposalNames) public {
+    constructor(bytes32[] memory proposalNames) {
         chairperson = msg.sender;
         voters[chairperson].weight = 1;
         for (uint i = 0; i < proposalNames.length; i++) {
@@ -63,7 +63,30 @@ contract Ballot {
         }
     }
 
+    // 投票给提案 proposals[uint proposal].name
     function vote(uint proposal) public {
-        
+        Voter storage sender = voters[msg.sender];
+        require(!sender.voted, unicode"已投票");
+        sender.voted = true;
+        sender.vote = proposal;
+
+        proposals[proposal].voteCount += sender.weight;
+    }
+
+    // 计算最终胜出的提案
+    function winningProposal() public view returns (uint _winningProposal) {
+        uint winningVoteCount = 0;
+
+        for (uint p = 0; p < proposals.length; p++) {
+            if (proposals[p].voteCount > winningVoteCount) {
+                winningVoteCount = proposals[p].voteCount;
+                _winningProposal = p;
+            }
+        }
+    }
+
+    // 调用 winningProposal 函数获取最终获胜者的索引和名称
+    function winningName() public view returns (bytes32 _winningName) {
+        _winningName = proposals[winningProposal()].name;
     }
 }
