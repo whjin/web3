@@ -1,10 +1,13 @@
 # Remix compiler artifacts
 **/artifacts/
 **/artifacts/**
+**/.states/**
 
 # Remix plugin state folders
 deps/
 states/
+.states
+
 
 # Debug info
 *.dbg.json
